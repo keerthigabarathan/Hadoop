@@ -1,0 +1,65 @@
+Home directory of HDFS is always /home/username
+so it is /home/focus2/
+
+To list the files in VM
+-----------------------
+ls
+
+To create a directory
+------------------------
+mkdir <Your Name>
+
+
+To change the directory
+
+------------------------
+
+
+cd <Your Name>
+
+To write to a file:
+
+--------------------
+
+
+cat >> a.txt
+
+
+
+Type something 
+and enter
+Ctrl + c
+
+To see the content of a file:
+----------------------------
+cat a.txt
+
+
+To delete file:
+----------------
+rm a.txt
+
+
+To create a file using VI Editor:
+----------------------------------
+vi editor b.txt
+
+Type something
+
+esc
+:w - save the file
+:q - quit
+:wq - save and quit
+:q! - quit without saving
+
+
+To come out of a directory
+--------------------------
+cd ..
+
+
+To exit
+-------
+exit
+
+
