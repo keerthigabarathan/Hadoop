@@ -1,0 +1,250 @@
+CREATE TABLE stocks(Exch STRING,Ticker STRING, StockDate STRING, Open_Value DOUBLE,High_Value DOUBLE,Low_Value DOUBLE, Close_Value DOUBLE, Volumn_for_the_day INT) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' TBLPROPERTIES("skip.header.line.count"="1");
+
+LOAD  DATA LOCAL INPATH  '/home/cloudera/inputfiles/NYSE_daily_prices_Sample.csv' OVERWRITE INTO TABLE stocks;
+
+SELECT * FROM stocks LIMIT 5;
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+String Functions:
+---------------------------------------------------------------------------------------------------------------------------------------------
+select distinct ticker ,StockDate ,(concat(ticker , '-',StockDate)) from stocks limit 10 ;
+
+select distinct(ticker) , length(ticker) from stocks limit 10;
+
+select distinct(ticker) , lower(ticker) from stocks limit 10;
+
+select distinct(ticker) , lpad(ticker,5,'s') from stocks limit 10;
+
+select distinct(ticker) , rpad(ticker,5,'s') from stocks limit 10;
+
+select distinct ticker , (repeat(ticker , 2)) from stocks;
+
+select distinct ticker ,(reverse(ticker)) from stocks;
+
+select split('apple:stocks',':');
+
+select substr('View the basic AAPL stock chart',4 );
+
+select substr('View the basic AAPL stock chart',4 ,3);
+
+select instr('View the basic AAPL stock chart','b');
+
+select regexp_replace( 'email_id@gmail.com', '@.*\\.(com)$','');
+
+select regexp_extract('foothebar', 'foo(.*?)(bar)', 2);
+
+Window Functions:
+-----------------
+Lag:
+-------
+This function returns the values of the previous row. You can specify an integer offset which designates the row position else it will take the default integer offset as 1.
+Here using lag we can display the yesterday’s closing price of the ticker. Lag is to be used with over function, inside the over function you can use partition or order by classes.
+
+
+> select ticker,stockdate,close_value,lag(close_value,1) over(partition by ticker order by ticker) as yesterday_price from default.stocks where ticker = 'CLI';
+
+Lead:
+--------
+This function returns the values from the following rows. You can specify an integer offset which designates the row position else it will take the default integer offset as 1.
+Now using the lead function, we will find that whether the following day’s closing price is higher or lesser than today’s.
+
+> select ticker,stockdate,close_value,case(lead(close_value,1) over(partition by ticker order by ticker)-close_value)>0 when true then "higher" when false then "lesser" end as Changes from default.stocks where ticker = 'CLI';
+
+FIRST_VALUE:
+-------------
+It returns the value of the first row from that window. With the below query, you can see the first row high price of the ticker for all the days.
+
+> select ticker,first_value(High_Value) over(partition by ticker) as first_high from default.stocks order by ticker;
+
+LAST_VALUE:
+-------------
+It is the reverse of FIRST_VALUE. It returns the value of the last row from that window. With the below query, you can see the last row high price value of the ticker for all the days.
+
+> select ticker,last_value(High_Value) over(partition by ticker) as last_high from default.stocks order by ticker;
+
+Count:
+-------
+It returns the count of all the values for the expression written in the over clause. we can find the number of rows present for each ticker. For each partition, the count of ticker will be calculated.
+
+> select distinct(ticker),count(ticker) over(partition by ticker) as cnt from stocks order by ticker;
+
+Sum:
+------
+It returns the sum of all the values for the expression written in the over clause.From the below query, we can find the sum of all the closing stock prices for that particular ticker.
+
+> select ticker,sum(close_value) over(partition by ticker) as Close_total from stocks order by ticker;
+
+Finding the percentage of each row value:
+-----------------------------------------
+Find the percentage of the volume_for_the_day on the total volumes for that particular ticker
+
+> select ticker,stockdate,Volumn_for_the_day,(Volumn_for_the_day*100/(sum(Volumn_for_the_day) over(partition by ticker)))as percent from stocks order by ticker;
+
+Min:
+------
+Distinct is supported in Hive 2.1.0 and later
+Distinct is supported for aggregation functions including SUM, COUNT and AVG, which aggregate over the distinct values within each partition
+
+It returns the minimum value of the column for the rows in that over clause.
+
+> select distinct(ticker), min(close_value) over(partition by ticker) as minimum from stocks order by ticker;
+
+Max:
+--------
+It returns the maximum value of the column for the rows in that over clause
+> select distinct(ticker), max(close_value) over(partition by ticker) as minimum from stocks order by ticker;
+
+Avg:
+------
+It returns the average value of the column for the rows that over clause returns.
+
+> select distinct(ticker), avg(close_value) over(partition by ticker) as maximum from stocks order by ticker;
+
+
+Rank:
+-------
+The rank function will return the rank of the values as per the result set of the over clause. If two values are same then it will give the same rank to those 2 values and then for the next value, the sub-sequent rank will be skipped.
+
+> select distinct(ticker),close_value,rank() over(partition by ticker order by close_value) as closing from stocks;
+
+Row_number:
+-----------
+Row number will return the continuous sequence of numbers for all the rows of the result set of the over clause.
+
+> select ticker,close_value,row_number() over(partition by ticker order by close_value) as num from stocks;
+
+Dense_rank:
+---------------
+It is same as the rank() function but the difference is if any duplicate value is present then the rank will not be skipped for the subsequent rows. Each unique value will get the ranks in a sequence.
+
+> select ticker,Close_Value,dense_rank() over(partition by ticker order by Close_Value) as closing from stocks;
+
+Cume_dist:
+------------
+It returns the cumulative distribution of a value. It results from 0 to 1. For suppose if the total number of records are 10 then for the 1st row the cume_dist will be 1/10 and for the second 2/10 and so on till 10/10. This cume_dist will be calculated in accordance with the result set returned by the over clause. 
+
+> select ticker,cume_dist() over(partition by ticker order by close_value) as cummulative from stocks;
+
+Percent_rank:
+--------------
+It returns the percentage rank of each row within the result set of over clause. Percent_rank is calculated in accordance with the rank of the row and the calculation is as follows (rank-1)/(total_rows_in_group – 1). If the result set has only one row then the percent_rank will be 0
+
+> select ticker,close_value,percent_rank() over(partition by ticker order by close_value) as closing from stocks
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+Sampling Functions:
+---------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TABLE t_employee (id INT, emp_name VARCHAR(20), dep_name VARCHAR(20),
+salary DECIMAL(7, 2), age DECIMAL(3, 0)) clustered by(id) into 2 buckets;
+
+INSERT INTO t_employee VALUES
+( 1,  'Matthew', 'Management',  4500, 55),
+( 2,  'Olivia',  'Management',  4400, 61),
+( 3,  'Grace',   'Management',  4000, 42),
+( 4,  'Jim',     'Production',  3700, 35),
+( 5,  'Alice',   'Production',  3500, 24),
+( 6,  'Michael', 'Production',  3600, 28),
+( 7,  'Tom',     'Production',  3800, 35),
+( 8,  'Kevin',   'Production',  4000, 52),
+( 9,  'Elvis',   'Service',     4100, 40),
+(10,  'Sophia',  'Sales',       4300, 36),
+(11,  'Samantha','Sales',       4100, 38);
+
+
+select * from t_employee TABLESAMPLE(BUCKET 1 OUT OF 2);
+select * from t_employee TABLESAMPLE(BUCKET 1 OUT OF 2 ON ID);
+select * from t_employee TABLESAMPLE(BUCKET 2 OUT OF 2 ON AGE);
+select * from t_employee TABLESAMPLE(20 PERCENT);
+select * from t_employee TABLESAMPLE(2 ROWS);
+
+Top K:
+--------
+We can use the RANK() function to find out who earns the most within each department:
+
+  SELECT
+    dep_name, emp_name, salary
+    ,RANK() OVER (PARTITION BY dep_name ORDER BY salary DESC) AS rnk
+  FROM t_employee;
+
+
+Cumulative Distribution:
+-------------------------
+We can calculate the cumulative distribution of salaries among all departments. For example, salary 4000‘s cumulative distribution is 0.55, which means 55% people’s salaries are less or equal to 4000. To calculate this, we first count the frequencies of every salary, and do a cumulative summing:
+
+
+SELECT
+  salary
+  ,SUM(cnt) OVER (ORDER BY salary)
+  / SUM(cnt) OVER (ORDER BY salary ROWS BETWEEN UNBOUNDED PRECEDING
+                   AND UNBOUNDED FOLLOWING)
+FROM (
+  SELECT salary, count(*) AS cnt
+  FROM t_employee
+  GROUP BY salary
+) a;
+
+This can also be done with Hive’s CUME_DIST() window function. There’s another PERCENT_RANK() function, which computes the rank of the salary as percentage.
+
+
+SELECT
+  salary
+  ,CUME_DIST() OVER (ORDER BY salary) AS pct_cum
+  ,PERCENT_RANK() OVER (ORDER BY salary) AS pct_rank
+FROM t_employee;
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+LATERAL VIEW EXPLODE Functions:
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+CREATE TABLE Products(id INT, ProductName STRING, ProductColorOptions ARRAY<STRING>);
+
+We can not directly insert data in table containing arrays, we need to create temp table & then use that table to insert data as shown below:
+create table temp_product (a String);
+insert into table temp_product values ('a');
+select * from temp_product;
+
+insert into table products select 1,'Watches',array('Red','Green') from temp_product;
+insert into table products select 2,'Clothes',array('Blue','Green') from temp_product;
+insert into table products select 3,'Books',array('Blue','Green','Red') from temp_product;
+
+
+select * from products;
+SELECT id, productname, productcoloroptions[0] FROM products;
+SELECT p.id,p.productname,colors.colorselection FROM products P LATERAL VIEW EXPLODE(p.ProductColorOptions)colors as colorselection;
+
+select explode(ProductColorOptions) as colors from products;
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+Map Join:
+----------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TABLE emp (id INT, emp_name VARCHAR(20), depid INT,
+salary DECIMAL(7, 2), age DECIMAL(3, 0));
+
+INSERT INTO emp VALUES
+( 1,  'Matthew', 1,  4500, 55),
+( 2,  'Olivia',  1,  4400, 61),
+( 3,  'Grace',   1,  4000, 42),
+( 4,  'Jim',     2,  3700, 35),
+( 5,  'Alice',   2,  3500, 24),
+( 6,  'Michael', 2,  3600, 28),
+( 7,  'Tom',     2,  3800, 35),
+( 8,  'Kevin',  2,  4000, 52),
+( 9,  'Elvis',  3,     4100, 40),
+(10,  'Sophia',  4,       4300, 36),
+(11,  'Samantha',4,       4100, 38);
+
+CREATE TABLE dept (depid INT, dep_name VARCHAR(20));
+
+INSERT INTO dept VALUES
+(1,'Management'),
+(2,'Production'),
+(3,'Service'),
+(4,'Sales');
+
+SELECT /*+ MAPJOIN(dept) */ emp.emp_name,emp.salary,dept.dep_name 
+FROM emp JOIN dept ON emp.depid = dept.depid;
+
+
+
+
+
