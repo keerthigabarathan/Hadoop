@@ -1,0 +1,206 @@
+To enter spark shell
+--------------------
+Go to bin directory and type
+
+> spark-shell
+
+or
+> spark2-shell
+
+To come out of spark shell
+----------------------------
+>exit
+
+
+1.Glom
+-------
+val x = sc.parallelize(Array(1, 2, 3,4,5,6,7,8,9,10), 2)
+x.glom().collect
+
+
+2.Map
+-------
+val x = Array("b", "a", "c")
+x.map(z => (z, 1))
+
+
+3. Filter
+---------
+val x = (1 to 20)
+x.filter(x => x % 2 == 1) 
+
+
+4. Flatmap
+-----------
+val x = Array("This is a single line")
+x.flatMap(x => x.split(" "))
+
+
+5. GroupBy
+-----------
+val x = Array("John", "Fred", "Anna", "James")
+x.groupBy(w => w(0))
+
+
+6.Union
+--------
+val x = sc.parallelize(Array(1, 2, 3), 2)
+val y = sc.parallelize(Array(3, 4), 1)
+val z = x.union(y)
+z.collect()
+
+
+7.Key By
+--------
+val x = sc.parallelize(Array("John", "Fred", "Anna", "James"))
+val y = x.keyBy(s => s(0))
+y.collect()
+
+
+8. To perform wordcount
+------------------------
+------------------------
+Input File: README.MD
+
+scala> val input = sc.textFile("D:/Spark/inputfile/README.MD")
+scala> val words = input.flatMap(x => x.split(" "))
+scala> val wordmap = words.map(x => (x, 1))
+scala> val counts = wordmap.reduceByKey(_ + _)
+scala> counts.take(10).foreach(println)
+
+or
+
+val input =  sc.textFile("/FileStore/tables/README.md")
+val words = input.flatMap(x => x.split(" "))
+val wordmap = words.map(x => (x, 1))
+val counts = wordmap.reduceByKey(_ + _)
+counts.take(10).foreach(println)
+
+
+9.Crime data analysis
+----------------------
+We will be using dataset consisting of reported crimes in Washington D.C in 2013
+Input File: wash_dc_crime_incidents_2013.csv
+
+
+A.
+Create Base RDD:
+
+scala> val baseRDD = sc.textFile("d:/spark/inputfile/wash_dc_crime_incidents_2013.csv")
+scala> baseRDD.take(3)
+
+or in Databricks cluster
+val baseRDD = sc.textFile("/FileStore/tables/wash_dc_crime_incidents_2013.csv")
+baseRDD.take(3)
+
+
+B.
+RDD has data along with header. We need to drop that.
+Filter transformation returns a new RDD with a subset of the items in the file
+
+
+scala> val noHeaderRDD = baseRDD.filter { line => ! (line contains "REPORTDATETIME") }
+scala> noHeaderRDD.take(3)
+
+
+C.
+Create case class scala object
+> Splitting records by “,” separator and mapping the fields of the existing RDD to the fields of case class for easy manipulations
+> Convert existing RDD to RDD containing scala objects like case class
+> All the parameters in the case class can be accessed directly
+> Create case class with 5 fields
+
+
+scala> case class CrimeData(ccn: String,reportTime: String,shift: String,offense: String,method: String)
+
+D.
+Map RDD to case class object
+
+> We are going to take only the first 5 columns in the excel 
+> Map the entire line to CrimeData case class with 5 columns
+> Split is used to split the line into columns based on commas
+
+Here first we have split comma separated data and mapped it to correct columns using Scala case class CrimeData
+
+
+scala> val dataRDD = noHeaderRDD.map(x=>x.split(",")).map(x=>CrimeData(x(0).toString, x(1).toString, x(2).toString, x(3).toString, x(4).toString))
+
+scala> dataRDD.take(3)
+scala> dataRDD.take(3).foreach(println)
+
+
+Question 1: Find the no of crimes happen based on murder weapon
+------------------------------------------------------------------
+
+Method field has weapon details
+Apply mapping function on method column and count the values in it
+
+scala> val wepRDD=dataRDD.map(x=>(x.method,1)). reduceByKey(_+_)
+scala> wepRDD.take(5).foreach(println)
+
+
+Question 2: To get all the crimes related to robbery
+-----------------------------------------------------
+Filter the record on offense column to show only robbery records
+
+scala> val robRDD=dataRDD.filter(x=>(x.offense=="ROBBERY"))
+scala> robRDD.take(10).foreach(println)
+
+
+To find the count of records above RDD:
+scala> robRDD.count()
+
+
+Question 3: To list the robberies happened in the day time
+------------------------------------------------------------
+
+scala> val robdayRDD = robRDD.filter(x=>(x.shift=="DAY"))
+scala> robdayRDD.take(10).foreach(println)
+
+
+
+Question 4: List all the offenses along with the no of occurrences
+----------------------------------------------------------------------
+
+scala> val alloffensecountRDD=dataRDD.map(x=>(x.offense,1)).reduceByKey(_+_)
+scala> alloffensecountRDD.take(10).foreach(println)
+
+To check the no of partitions:
+scala> alloffensecountRDD.partitions.size
+
+
+
+10.Default partition number
+---------------------------
+
+val rdd = sc.parallelize(Array(1,2,3,4,5,6,7,8,9,10),2)
+print(rdd.getNumPartitions)
+
+print(sc.defaultParallelism)
+
+val rdd1 = sc.parallelize(Array(1,2,3,4,5,6,7,8,9,10))
+print(rdd1.getNumPartitions)
+
+
+
+11.Partition Length
+--------------------
+val x = sc.parallelize(Array(1, 2, 3), 2)
+val y = x.partitions.length
+
+
+12.Join
+------
+// Join
+val x = sc.parallelize(Array(("a", 1), ("b", 2),("c,",5)))
+val y = sc.parallelize(Array(("a", 3), ("a", 4), ("b", 5)))
+val z = x.join(y)
+z.collect()
+
+//Left Outer Join
+val x = sc.parallelize(Array(("a", 1), ("b", 2),("c,",5)))
+val y = sc.parallelize(Array(("a", 3), ("a", 4), ("b", 5)))
+val z = x.leftOuterJoin(y)
+z.collect()
+
+
