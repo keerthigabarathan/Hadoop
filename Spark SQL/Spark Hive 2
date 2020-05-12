@@ -1,0 +1,21 @@
+// Create Hive Table from Spark
+spark.sql("CREATE TABLE people_table (FIRST STRING, MIDDLE STRING, LAST STRING,GENDER STRING, BDATE STRING,SALARY DOUBLE, SSN STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ':' STORED AS TEXTFILE")
+
+// Get tables
+spark.sql("show tables").show
+spark.sql("select * from people_json").show
+
+// Load data into Hive
+spark.sql("LOAD DATA INPATH '/FileStore/tables/people.txt' INTO TABLE people_table")
+
+// Store query result in a dataframe
+val resultdf = sqlContext.sql("FROM people_table SELECT FIRST,SALARY,SSN WHERE GENDER='F' and SALARY < 200000 LIMIT 10")
+
+// To see a sample of 20 records
+resultdf.show
+
+// To get the count of records
+resultdf.count()
+
+// To see the schema in treeformat
+resultdf.printSchema()
