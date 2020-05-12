@@ -1,0 +1,18 @@
+val deptdf = sqlContext.read.json("/FileStore/tables/department.json")
+val ppldf = sqlContext.read.json("/FileStore/tables/people.json")
+val joinresult = deptdf.join(ppldf, deptdf("ssn") === ppldf("ssn"))
+
+val result = joinresult.select("dept","age","city","gender","name")
+result.show
+
+// Store the joined data in hive table
+result.write.saveAsTable("%s.%s".format( "default" , "deptppljoin" ))
+
+// Here it show Databrick storage tables, with hive, it will show hive tables
+spark.sql("show tables").show
+
+// Get and see the hive table data which we created
+val hiveresult = sqlContext.sql("select * from deptppljoin")
+hiveresult.show()
+
+hiveresult.printSchema()
