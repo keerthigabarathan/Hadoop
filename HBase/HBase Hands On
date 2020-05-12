@@ -1,0 +1,143 @@
+1.
+To enter hbase shell
+----------------------
+hbase shell
+
+help 'create'
+
+
+To come out of hbase shell
+--------------------------
+quit
+
+
+2.
+To get cluster status
+-----------------------
+hbase> status
+hbase> status 'simple'
+hbase> status 'summary'
+hbase> status 'detailed'
+
+
+3.
+To get the version
+--------------------
+hbase> version
+
+
+
+4.
+To list tables
+------------
+list
+
+
+5.
+create a table
+----------------
+
+create 'emp',{NAME=>'empname'},{NAME=>'empdetails'}
+
+describe 'emp'
+
+
+6.
+To insert data into table
+--------------------------
+put 'emp','emp1','empname:fname','Bill'
+put 'emp','emp1','empname:lname','Gates'
+put 'emp','emp1','empdetails:country','USA'
+put 'emp','emp1','empdetails:Age','50'
+
+
+To add records into table at any point of time:
+
+put 'emp','emp2','empname:fname','John'
+put 'emp','emp2','empdetails:country','Canada'
+
+
+put 'emp','emp3','empname:fname','Adam'
+put 'emp','emp3','empdetails:country','Singapore'
+
+
+7.
+Count Data
+-----------
+count 'emp'
+
+
+8.
+check the data
+---------------
+scan 'emp'
+
+
+9.
+Modify the value of existing row
+------------------------------------
+put 'emp','emp2','empdetails:country','japan'
+
+scan 'emp'
+
+
+
+10.
+Get a record
+-------------
+To get the value for one rowkey:
+
+get 'emp', 'emp1'
+
+
+To get the value for one rowkey and one column:
+get 'emp', 'emp1','empname:fname'
+
+
+To get the value for a column for a specific timetamp:
+get 'emp', 'emp2',{COLUMN=> 'empdetails:country', TIMESTAMP=> 1453607178435}
+
+To see the value of specific columns on a single row:
+get 'emp', 'emp1',{COLUMN=> ['empname:fname','empdetails:Age']}
+
+
+
+11.
+Scan Record
+-----------
+
+To display records from a range of rowkeys:
+
+scan 'emp', {COLUMNS=>'empname:fname',STARTROW=>'emp1', STOPROW=>'emp3'}
+
+	
+12.
+Delete a record
+------------------
+
+delete 'emp', 'emp3','empname:fname'
+
+No check by executing scan command:
+scan 'emp'
+
+
+
+13.
+Delete a column family
+----------------------
+disable 'emp'
+
+alter 'emp', 'delete' => 'empdetails'
+
+enable emp
+
+
+14.
+To drop a table
+------------------
+drop 'emp'
+
+list
+Table emp will not be displayed
+
+
