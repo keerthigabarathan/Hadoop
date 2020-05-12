@@ -1,0 +1,5 @@
+This is a sample file
+To count the number of words
+written in the file
+using spark streaming
+sample spark
