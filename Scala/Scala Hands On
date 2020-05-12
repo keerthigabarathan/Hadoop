@@ -1,0 +1,1002 @@
+// Creates a variable of the correct type
+10 + 3 - 5 / 1
+
+// Define your own variable - Type Inference
+var myName = "Derek"
+
+
+// Define your own constant variable
+val myAge = 40
+
+// You can define the type
+val lastName: String = "Banas"
+
+
+// Var & Val Diff
+var myVar :Int = 10;
+myVar=myVar+1;
+
+ val myVal=10;
+myVal=myVal+1;
+
+
+"5 + 4 = " + (5 + 4)
+
+
+var randInt = 100000
+randInt += 1
+"randInt += 1" + randInt
+
+
+// Math functions
+import scala.math._
+println(abs(-8))
+println(round(5.45))
+println(min(5, 10))
+println(max(5, 10))
+
+// Random number between 1 and 10
+println((random * (11 - 1) + 1).toInt)
+
+
+
+// IF Else Example 1
+var age = 18
+val canVote = if (age >= 18) "yes" else "no"
+
+// IF Else Example 2
+var age = 18
+if ((age >= 5) && (age <= 6)) {
+  println("Go to Kindergarten")
+} else if ((age > 6) && (age <= 7)) {
+  println("Go to Grade 1")
+} else {
+  println("Go to Grade " + (age - 5))
+}
+
+
+// While Statement 
+var i = 0
+
+ while (i <= 10) {
+   println(i)
+   i += 1
+  }
+
+
+
+// do-while Statement 
+var i = 0
+
+do {
+      println(i)
+      i += 1
+    } while(i <= 10)
+
+
+// for Statement 
+var i = 0
+
+for (i <- 0 to 10){
+      println(i)
+    }
+
+// Used to iterate through a list
+    val aList = List(1,2,3,4,5)
+    for(i <- aList){
+      println("List Item " + i)
+    }
+
+
+// loop through strings or arrays
+    val randLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    for (i <- 0 until randLetters.length){
+
+      // Get the letter in the index of the String
+      println(randLetters(i))
+    }
+
+// Store even numbers in a list
+
+    var evenList = for { i <- 1 to 20
+      if (i % 2) == 0
+    } yield i
+
+    println("Even List")
+    for(i <- evenList)
+      println(i)
+
+// This loop assigns a value to the 1st variable and it retains that value until the 2nd finishes its cycle and then it iterates
+    for (i <- 1 to 5; j <- 6 to 10){
+      println("i: " + i)
+      println("j: " + j)
+    }
+
+
+// Break & Continue Example
+
+def printPrimes() {
+
+      val primeList = List(1,2,3,5,7,11)
+      for (i <- primeList){
+
+        // Works like break if you return from a function
+        if(i == 11){
+          return
+        }
+
+        // Works like continue
+        if (i != 1){
+          println(i)
+        }
+
+      }
+
+    }
+
+    printPrimes
+
+
+
+//Input from users
+import scala.io.StdIn.{readLine,readInt}
+
+var numberGuess = 0
+
+do{
+  print("Guess a number : ")
+
+  // You can also use readInt, readDouble, readByte, readShort, readLong,
+  numberGuess = readLine.toInt
+  // IF the package is not imported, use: scala.io.StdIn.readLine.toInt 
+
+  } while(numberGuess != 15)
+
+  printf("You guessed the secret number %d\n", 15)
+
+
+
+// Style Format Specifiers
+
+ printf("'%5d'\n",5) // Right justify
+ printf("'%-5d Hi'\n",5) // Left justify
+ printf("'%05d'\n",5) // Zero Fill
+ printf("'%.5f'\n",3.14) // 5 decimal minimum & maximum
+ printf("'%-5s'\n", "Hi") // Left Justify String
+
+// You can use string interpolation
+  val name = "Derek"
+  val age = 39
+  val weight = 175.5
+  println(s"Hello $name")
+  println(f"I am ${age + 1} and weigh $weight%.2f")
+
+// String Functions
+var randSent = "I saw a dragon fly by"
+
+// Get the 3rd index value
+println("3rd Index : " + randSent(3))
+
+// Get String length
+println("String length " + randSent.length())
+
+// Concatenate strings
+println(randSent.concat(" and explode"))
+
+// Compare strings for equality
+println("Are strings equal " + "I saw a dragon".equals(randSent))
+
+// Get index of a match
+println("dragon starts at index ", randSent.indexOf("dragon"))
+
+// Convert a string into an array
+val randSentArray = randSent.toArray
+
+for (v <- randSentArray)
+  println(v)
+
+
+// Function Example
+def max(x: Int, y: Int): Int = {
+if (x > y) x
+else y
+}
+
+
+// You can give parameters default values
+def getSum( num1:Int = 1, num2:Int = 1) : Int = {
+  return num1 + num2
+}
+println("Default = " + getSum())
+println("5 + 4 = " + getSum(5,4))
+// you can use named arguments
+println("5 + 4 = " + getSum(num2=5, num1=4))
+
+// A function that returns nothing (Procedure)
+def sayHi() : Unit = {
+  println("Hi how are you doing")
+}
+
+sayHi
+
+// Receive variable number of arguments
+def getSum2(args: Int*) : Int = {
+  var sum : Int = 0
+  for(num <- args){
+    sum += num
+  }
+  sum
+}
+
+println("getSum2: " + getSum2(1,2,3,4,5))
+
+
+/ Recursion example calculating factorials
+def factorial(num : BigInt) : BigInt = {
+  if (num <= 1)
+    1
+  else
+    num * factorial(num - 1)
+}
+
+// 1st: num = 4 * factorial(3) = 4 * 6 = 24
+// 2nd: num = 3 * factorial(2) = 3 * 2 = 6
+// 3rd: num = 2 * factorial(1) = 2 * 1 = 2
+
+println("Factorial of 4 = " + factorial(4))
+
+
+// Arrays
+
+// Create and initialize array in 1 line
+val friends = Array("Bob", "Tom")
+
+// Change the value in an array
+friends(0) = "Sue"
+
+println("Best Friend " + friends(0))
+
+
+// ArrayBuffer Example
+
+import scala.collection.mutable.ArrayBuffer
+
+// Create an ArrayBuffer
+val friends2 = ArrayBuffer[String]()
+
+// Add an item to the 1st index
+friends2.insert(0, "Phil")
+
+// Add item to the next available slot
+friends2 += "Mark"
+
+// Add multiple values to the next available slot
+friends2 ++= Array("Susy", "Paul")
+
+// Add items starting at 2nd slot
+friends2.insert(1, "Mike", "Sally", "Sam", "Mary", "Sue")
+
+// Remove the 2nd element
+friends2.remove(1)
+
+// Remove 2 elements starting at the 2nd index
+friends2.remove(1, 2)
+
+
+// Add values to an array with a loop
+for (j <- 0 to (favNums.length - 1)){
+  favNums(j) = j
+  println(favNums(j))
+}
+
+// Use yield to multiply all values times 2 and store in a new array
+val favNumsTimes2 = for(num <- favNums) yield 2 * num
+
+// Another way to print out values in array
+favNumsTimes2.foreach(println)
+
+// You can also store values that match a condition
+var favNumsDiv4 = for(num <- favNums if num % 4 == 0) yield num
+
+favNumsDiv4.foreach(println)
+
+
+// Sort in desending order (Use < for assending)
+val sortedNums = favNums.sortWith(_ > _)
+
+// Return an indexed sequence and convert it into a string with commas
+println(sortedNums.deep.mkString(", "))
+
+
+// Create a multidimensional array with Array.ofDim
+var multTable = Array.ofDim[Int](10,10)
+
+for(i <- 0 to 9){
+  for(j <- 0 to 9){
+    multTable(i)(j) = i * j
+  }
+}
+
+for(i <- 0 to 9){
+  for(j <- 0 to 9){
+    printf("%d : %d = %d\n", i, j, multTable(i)(j))
+  }
+}
+
+
+// List of Strings
+val fruit: List[String] = List("apples", "oranges", "pears")
+
+// List of Integers
+val nums: List[Int] = List(1, 2, 3, 4)
+
+// Empty List.
+val empty: List[Nothing] = List()
+
+// Two dimensional list
+val dim: List[List[Int]] =
+   List(
+      List(1, 0, 0),
+      List(0, 1, 0),
+      List(0, 0, 1)
+   )
+
+println( "Head of fruit : " + fruit.head )
+println( "Tail of fruit : " + fruit.tail )
+      println( "Check if fruit is empty : " + fruit.isEmpty )
+      println( "Check if nums is empty : " + nums.isEmpty)
+
+
+
+//Concatenating Lists
+
+val fruit1 = "apples" :: ("oranges" :: ("pears" :: Nil))
+val fruit2 = "mangoes" :: ("banana" :: Nil)
+var fruit = fruit1 ::: fruit2
+println(fruit)
+println( "After reverse fruit : " + fruit.reverse )
+val fruitconc = fruit1.:::(fruit2)
+println(fruitconc)
+
+val fruitconc1 = List.concat(fruit1, fruit2)
+println(fruitconc1)
+
+
+// Tabulate Example
+val add = List.tabulate(5)(_ + 1)
+
+val squares = List.tabulate(6)(n => n * n)
+
+val mul = List.tabulate( 3,2)( _ * _ )
+
+
+
+// Set Example - Mutable. By default it is mutable in databricks
+import scala.collection.mutable.Set
+val num = Set(6,9,5,1,20,30,45,20)
+// Not allow duplicates, Though 20 is appeared twice, only one value is considered
+println(num)
+println( "Min element in Set(5,6,9,20,30,45) : " + num.min )
+println( "Max element in Set(5,6,9,20,30,45) : " + num.max )
+// Does not add duplicate value 6
+println(num+=6)
+println(num+=3)
+
+// List displays value as ordered as given
+val num1 = List(6,9,5,1,20,30,45)
+println(num1)
+// List is immutable and new element cannot be added
+//println(num1+=6)
+
+
+// Create a Map that can't be changed (Immutable)
+val employees = Map("Manager" -> "Bob Smith", "Secretary" -> "Sue Brown")
+
+// Get value using the key after checking that it exists
+if(employees.contains("Manager"))
+  printf("Manager : %s\n", employees("Manager"))
+
+
+// Create a Mutable map
+val customers = collection.mutable.Map(100 -> "Paul Smith",
+  101 -> "Sally Smith")
+
+printf("Cust 1 : %s\n", customers(100))
+
+// Change a value using the key
+customers(100) = "Tom Marks"
+printf("Cust 1 : %s\n", customers(100))
+
+// Add an item
+customers(102) = "Megan Swift"
+
+
+// Print Keys and Values from a Map
+customers.keys.foreach{ i =>  
+         print( "Key = " + i )
+         println(" Value = " + customers(i) )}
+
+
+// Tuples
+var tupleMarge = (103, "Marge Simpson", 10.25)
+println(tupleMarge)
+
+// Print 2nd value
+println(tupleMarge._2)
+
+// Iterate through a tuple
+tupleMarge.productIterator.foreach{ i => println(i)}
+
+// Display from tuple
+printf("%s owes us $%.2f\n", tupleMarge._2, tupleMarge._3)
+
+// Convert Tuple to String
+println(tupleMarge.toString())
+
+
+// Option Example
+val employees = Map("Manager" -> "Bob Smith", "Secretary" -> "Sue Brown")
+//printf("Manager with proper key : %s\n", employees("Manager"))
+//printf("Manager without proper key : %s\n", employees("Man"))
+
+// Without calling Option
+printf("Manager with improper key without Option : %s\n", employees.get("Man"))
+printf("Manager without Option : %s\n", employees.get("Manager"))
+
+def show(x: Option[String]) = x match {
+      case Some(s) => s
+      case None => "Doesnt exist"
+   }
+printf("Manager : %s\n", show(employees.get("Manager")))
+printf("Manager with improper key : %s\n", show(employees.get("Man")))
+
+
+// Sorting
+println(List(10, 5, 8, 1, 7).sortWith(_ < _))
+
+println(List(10, 5, 8, 1, 7).sortWith(_ > _))
+
+println(List("banana", "pear", "apple", "orange").sortWith(_ < _))
+
+println(List("banana", "pear", "apple", "orange").sortWith(_ > _))
+
+
+// Print Collection as String
+val a = Array("apple", "banana", "cherry")
+ println(a.mkString(" "))
+//Use a comma and a space to create a CSV string:
+println(a.mkString(", "))
+
+
+// Map & FlatMap Methods
+
+val fruits = List("apple", "banana", "orange")
+fruits.map(_.toUpperCase)
+fruits.flatMap(_.toUpperCase)
+
+//Class Example
+
+class car (Model:String){
+  // Class variable
+  var color:String="Black"
+  
+  // Class method
+    def display(){
+    println("Car Model is "+Model+" and the color is "+color)
+    }
+ }
+
+// Class object 
+var car1=new car("Brio")
+// Access class funciton from object
+car1.display()
+
+
+// Inheritance
+
+class Person{
+var SSN:String="999-32-7869"
+ }
+
+class Student extends Person{
+ var enrolment_no:String="0812CS141028"
+ println("SSN: "+SSN)
+ println("Enrolment Number: "+enrolment_no)
+}
+
+new Student()
+
+
+// Method Overriding
+class Vehicle{
+def getNumberOfWheels()={
+println(0)
+}
+}
+
+class Car extends Vehicle{
+override def getNumberOfWheels()={
+println(4)
+}
+}
+
+class Bike extends Vehicle{
+override def getNumberOfWheels()={
+println(2)
+}
+}
+
+class Auto extends Vehicle{
+override def getNumberOfWheels()={
+println(3)
+}
+}
+
+
+var c=new Car();
+c.getNumberOfWheels()
+var b=new Bike();
+b.getNumberOfWheels()
+var a=new Auto()
+a.getNumberOfWheels()
+
+
+// Singleton Object
+
+object Student {
+    def disp() {
+        println("Inside Student");
+    }
+}
+
+Student.disp();
+
+// Companion Object
+class compclass {
+    def meth1() {
+        println("Inside Companion Class");
+    }
+}
+
+object compclass {
+    def meth2() {
+        println("Inside Companion Object");
+    }
+}
+
+// Class object for the class
+var obj = new compclass();
+obj.meth1();
+
+// Accessing singleton object which is a companion object here as class and object name are same
+compclass.meth2();
+
+
+// Companion Object - Accessing companion object from the class
+object account{
+  var lastnum =0
+  def newNum()={lastnum +=1;lastnum }
+}
+
+class account{
+ var id = account.newNum()
+ println(id)
+}
+
+var accountobj = new account()
+
+
+
+// Companion Class Example 2 - with case class and importing companion object
+import scala.math._
+
+case class Circle(radius: Double) {
+  import Circle._
+  def area: Double = calculateArea(radius)
+}
+
+object Circle {
+  private def calculateArea(radius: Double): Double = Pi * pow(radius, 2.0)
+}
+
+val circle1 = new Circle(5.0)
+
+circle1.area
+
+
+// Case Class
+
+//Define class
+case class Song(title:String,artist:String,track:Int)
+
+// create a Scala Object for this Scala class
+val stay=Song("Stay","Inna",4)
+
+// Try accessing a field of this object
+stay.title
+
+// Try modifying it...will throw error
+//stay.title="Me Gusta"
+
+
+// Abstract Class
+
+abstract class Person{
+def greet()
+}
+
+class Student extends Person{
+  def greet(){
+   println("Hi")
+}
+}
+
+var s=new Student()
+// Cannot initiate abstract class
+//var p = new Person()
+s.greet()
+
+
+// Trait
+trait Pet {
+  def speak { println("Yo") }   
+  def comeToMaster              // abstract
+}
+
+class Dog extends Pet {
+  // don't need to implement 'speak' if you don't want to
+  def comeToMaster { println("I'm coming!") }
+}
+
+class Cat extends Pet {
+  // override 'speak'
+  override def speak { println("meow") }
+  def comeToMaster { println("That's not gonna happen.") }
+}
+
+// As the below does not use the methods from parent it need to be abstract
+abstract class FlyingPet extends Pet {
+  def fly { println("I'm flying!") }
+}
+
+
+/* If a class implements multiple traits, it will extend the first trait (or a class, or abstract class), 
+and then use with for other traits */
+trait Tail {
+  def wagTail { println("tail is wagging") }
+}
+
+abstract class Animal (var name: String) {
+  def speak  // abstract
+  def ownerIsHome { println("excited") }
+}
+
+// A Dog can now use the methods defined by both the abstract Pet class, as well as the Tail trait:
+class Dog (name: String) extends Animal (name) with Tail {
+  def speak { println("woof") }
+}
+  val labrador = new Dog("labrador")
+  labrador.ownerIsHome
+  labrador.wagTail
+  labrador.speak
+
+
+// Trait Example
+trait A{
+def showA()
+}
+
+trait B{
+def showB()
+}
+
+class MyClass extends A with B{
+  def showA {
+  print("Show A")
+  }
+  def showB {
+  print("Show B")
+  }
+}
+var m=new MyClass
+m.showA()
+m.showB()
+
+
+// Access Modifiers - Private
+
+class Example {
+private var a:Int=7
+  def show(){
+  a=8
+  println(a)
+  }
+}
+
+var e=new Example()
+e.show()
+
+// Accessing a outside example
+//e.a =8
+//println(e.a)
+
+
+// Access Modifiers - Protected
+class Example{
+  protected var a:Int=7
+  def show(){
+  println(a)
+  }
+}
+class Example1 extends Example {
+  def show1(){
+  a=9
+  println(a)
+  }
+}
+var e=new Example()
+e.show()
+var e1=new Example1()
+e1.show1()
+e1.show()
+
+
+// Access Modifier - Public
+
+class Example {
+  var a:Int=7
+  }
+
+var e=new Example()
+e.a = 8
+println(e.a)
+
+
+// Higher Order Function
+
+/* This addition takes a higher-order function as an input, which, in turn, 
+takes two integers as an input and returns an integer. */
+def addition(f: (Int, Int) => Int,a: Int, b:Int): Int = f(a,b)
+
+def squareSum = (x: Int, y: Int) => (x*x + y*y)
+def cubeSum = (x: Int, y: Int) => (x*x*x + y*y*y)
+def intSum = (x: Int, y: Int) => (x + y)
+
+val sqSum = addition(squareSum, 1, 2)
+val cuSum = addition(cubeSum, 1, 2)
+val norSum = addition(intSum, 1, 2)
+
+
+// Higher Oder Function - Example 2
+
+def sayhello(s:String){
+  println("Hello")
+}
+
+val name:String = "Asha"
+
+def func(f:String=> Unit,s:String)
+{
+ f(s)
+ println(s)
+}
+func(sayhello,name)
+
+
+// Closure Example
+val sum=(a:Int,b:Int)=>println(a+b)
+// Change the value to see the change in sum1 function
+var c=3
+val sum1=(a:Int,b:Int)=>println((a+b)*c)
+sum(2,3)
+sum1(2,3)
+
+
+// Closure - Factorial Example
+
+object Demo {
+   def main(args: Array[String]) {
+      println( "multiplier(1) value = " +  multiplier(1) )
+      println( "multiplier(2) value = " +  multiplier(2) )
+   }
+  // Change this factor value to any number and check 
+  var factor = 7
+  val multiplier = (i:Int) => i * factor
+}
+
+Demo.multiplier(2)
+
+
+// Partially applied function
+
+val multiply = (a: Int, b: Int, c: Int) => a * b * c
+
+// less arguments passed
+val f = multiply(1, 2, _:Int)
+
+/* The first two numbers (1 and 2) were passed into the original sum function; that process created the new function named f, which is a partially applied function; then, some time later in the code, the third number (3) was passed into f. */
+f(3)
+
+
+// Currying Functions
+
+def addcurry(x:Int)(y:Int): Int = x+y
+println(addcurry(5)(6))
+
+// Curried functon - not passing argument
+val x= addcurry(5)_
+// The next argument can be added later point of time in the program
+x(8)
+
+
+// Currying
+/* We have reduced our method from accepting 3 parameters to accept one parameter. So, we have split our method in such a way that we don't have to provide all the arguments at the same time. I can provide these arguments whenever they are available. This transformation is called currying.*/
+
+def finalPriceCurried(vat: Double) (serviceCharge: Double) (productPrice: Double): Double = 
+productPrice + productPrice*serviceCharge/100 + productPrice*vat/100
+
+val vatApplied = finalPriceCurried(20) _
+val serviceChargeApplied = vatApplied(12.5)
+val finalProductPrice = serviceChargeApplied(120)
+
+// Anonymous Function
+
+val x = List.range(1, 10)
+// you can pass an anonymous function to the List’s filter method to create a new List that contains only even numbers:
+val evens = x.filter((i: Int) => i % 2 == 0)
+
+
+// Final Method
+class Super{
+  final def show(){
+  println("Hello")
+  }
+} 
+
+class Sub extends Super{
+  override def show(){
+  println("Hi")
+  }
+}
+
+
+
+// Final Variable
+ class Super{
+  final var age=18
+} 
+
+class Sub extends Super{
+  override var age=21
+  def show(){
+  println("age="+age)
+  }
+}
+
+
+// Iterator example
+val v = Array(5,1,2,3,6,4) 
+val i = v.iterator 
+while (i.hasNext) {
+ println(i.next ) 
+ //i foreach println 
+    } 
+
+
+// Pattern Matching
+  
+   def matchTest(x: Int): String = x match {
+      case 1 => "one"
+      case 2 => "two"
+      case _ => "many"
+   }
+
+
+println(matchTest(3))
+
+
+
+// Regular Expression Example
+
+import scala.util.matching.Regex
+
+val pattern = "Scala".r
+val str = "Scala is Scalable and cool"
+      
+println(pattern findFirstIn str)
+
+
+// File I/O - Write Example
+
+import java.io._
+// Create a new file
+val writer=new PrintWriter(new File("demo1.txt"))
+// Write to the file
+writer.write("This is a demo")
+/* At this point, nothing is really visible in the file. To see these changes reflect 
+in the file demo1.txt, we need to close it with Scala. */
+writer.close()
+
+
+// File I/O - Read Example
+
+// The class we need to import here is scala.io.Source
+import scala.io.Source
+// Read the lines
+Source.fromFile("demo1.txt").getLines.foreach{x=>println(x)}
+
+
+// Exception
+
+def div(a:Int,b:Int ):Float={
+ a/b
+}
+
+div(1,0)
+
+
+// Try Catch Block
+
+def div(a:Int,b:Int ):Float={
+try{
+a/b
+}
+catch{
+case e:ArithmeticException=> println(e)
+}
+0
+}
+
+div(1,0)
+
+
+
+// Finally
+
+def div(a:Int,b:Int ):Float={
+try{
+a/b
+}
+catch{
+case e:ArithmeticException=> println(e)
+}
+finally{
+println ("This will print no matter of exception")
+}
+0
+}
+
+div(1,0)
+
+
+// Throw
+
+def validate(age:Int)=
+{   
+   if(age < 20)   
+            throw new Exception("You are not eligible for internship")   
+        else println("You are eligible for internship")   
+ }   
+
+ //validate(22) 
+validate(10) 
+
+
+// Throws Annotation
+@throws(classOf[ArithmeticException])
+def div(a:Int,b:Int ):Float={
+a/b
+}
+
+
+// Without Lazy
+
+val geeks = List(1, 2, 3, 4, 5)
+val output = geeks.map(l=> l*2)
+println(output)
+
+
+// With Lazy
+val geeks = List(1, 2, 3, 4, 5)
+lazy val output2 = geeks.map(l=> l*2)
+println(output2)
