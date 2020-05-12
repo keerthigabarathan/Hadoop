@@ -1,0 +1,34 @@
+// Counts words in new text files created in the given directory
+
+//  Import streaming jar file
+import org.apache.spark.SparkConf
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+
+//  Create StreamingContext with batch interval of 10 seconds
+val ssc = new StreamingContext(sc, Seconds(10))
+
+// Create the FileInputDStream on the directory and use the stream to count words in new files created.
+// This lines DStream represents the stream of data that will be received from the data server. Each record in this DStream is a line of text.
+
+val lines = ssc.textFileStream("/FileStore/tables/streaminput")
+
+// Split each line into words using flatmap DStream operation
+val words = lines.flatMap(_.split(" "))
+
+// Count each word in each batch
+val wordCounts = words.map(x => (x, 1)).reduceByKey(_ + _)
+
+//  Print the first ten elements of each RDD generated in this DStream to the console:
+wordCounts.print()
+//wordCounts.saveAsTextFiles("/FileStore/tables/streamoutput/streamwc")
+//wordCounts.coalesce(1).write.format("com.databricks.spark.csv").option("header", "true").save("dbfs:/FileStore/df/Sample.csv")
+// Spark Streaming computation setup is complete.
+
+// To start the processing
+ssc.start()
+
+ssc.awaitTermination()
+
+// To stop the processing
+ssc.stop()
+
