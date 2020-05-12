@@ -1,0 +1,25 @@
+val deptdf = sqlContext.read.json("/FileStore/tables/department.json")
+deptdf.printSchema()
+deptdf.select("ssn","dept").show()
+val ppldf = sqlContext.read.json("/FileStore/tables/people.json")
+ppldf.printSchema()
+ppldf.show()
+
+val joinresult = deptdf.join(ppldf, deptdf("ssn") === ppldf("ssn"))
+joinresult.select("name", "city","dept").show()
+
+val leftjoinresult = deptdf.join(ppldf, deptdf("ssn") === ppldf("ssn"),"full_outer")
+leftjoinresult.show
+
+joinresult.explain(true)
+
+deptdf.cache()
+
+//joinresult.registerTempTable("people_dept")
+joinresult.createOrReplaceTempView("people_dept")
+val fdocdf= sqlContext.sql("SELECT city, count(*) as cnt FROM people_dept WHERE gender = 'F' and dept = 'Doctor' GROUP BY city ORDER BY cnt DESC LIMIT 10")
+fdocdf.show()
+
+val fdocrdd = fdocdf.rdd
+fdocrdd.saveAsTextFile("/FileStore/tables/jsonout")
+
