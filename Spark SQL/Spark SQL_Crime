@@ -1,0 +1,18 @@
+val df = spark.read.format("csv")
+.option("header","false")
+.option("inferschema","true")
+.load("/FileStore/tables/wash_dc_crime_incidents_2013.csv")
+
+//Find the no of crimes happen based on murder weapon
+val df_count= df.groupBy($"method").count()
+df_count.show
+
+df.filter("method='KNIFE'").show
+
+df.createOrReplaceTempView("crime")
+
+val df1=spark.sql("select * from crime")
+df1.show
+
+val df2=spark.sql("select shift,offense,method from crime where method='KNIFE'")
+df2.show(1)
