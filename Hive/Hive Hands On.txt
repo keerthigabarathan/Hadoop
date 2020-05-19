@@ -1,0 +1,213 @@
+To enter into Hive Shell
+-------------------------
+hive
+
+
+To use shell commands inside hive
+---------------------------------
+!ls;
+
+!ls directoryname;
+Ex: !ls /home/<<LoginUserName>>;
+
+
+To lists all the tables:
+------------------------
+show tables;
+
+To show a database:
+-----------------
+show databases;
+
+To create database
+-------------------
+
+create database <<YourName>>
+
+To create tables in it:
+--------------------------
+use databasename;
+
+Ex: use amol;
+
+
+----------------------------
+General Table and HDFS File
+------------------------------
+
+1.
+Hive> CREATE TABLE posts (userid STRING, post STRING, time BIGINT)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE;
+
+! hadoop fs -ls /user/hive/warehouse;
+! hadoop fs -ls /user/hive/warehouse/posts;
+
+2.
+Hive> show tables;
+
+
+3.
+Hive> describe posts;
+
+
+4.
+hadoop fs -put /home/<<LoginUserName>>/<<YourName>>/posts.txt /user/<<LoginUserName>>/<<YourName>>/
+hadoop fs -put /home/focus2/keerthi/posts.txt /user/focus2/keerthi/
+
+! hadoop fs -ls /user/<<LoginUserName>>/<<YourName>>/;
+
+Hive> LOAD DATA INPATH '/user/<<LoginUserName>>/<<YourName>>/posts.txt'
+OVERWRITE INTO TABLE posts;
+
+
+! hadoop fs - ls /user/hive/warehouse/posts;
+
+
+5.
+Hive> select * from posts;
+
+
+6.
+Hive> drop table posts;
+Hive> Show tables;
+
+check this if posts exist
+
+!hadoop fs -ls /user/hive/warehouse/
+
+--------------------------------------------------------
+ Do the following 4 tasks for the sample data :
+------------------------------------------------------------
+
+a. Create table and load HDFS data
+b. Create table and load local data
+c. Create external table and load HDFS data
+d. Create external table and load local data
+
+Use any sample file that was shared and do the above tasks and observe how the table and the file underneath behave.
+
+
+7.
+Function commands:
+---------------------
+show functions;
+
+Gives short description of function:
+-----------------------------------
+describe function <functionname>;
+Ex: describe function upper;
+
+
+Gives full description of function:
+-----------------------------------
+describe function extended <functionname>;
+Ex: describe function extended upper;
+
+Gives full description of table:
+-----------------------------------
+describe extended <<tablename>>;
+
+----------
+Inner Join - with Script
+-----------
+8.
+
+CREATE EXTERNAL TABLE likes (user STRING, liker INT, time BIGINT)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE;
+
+
+LOAD DATA LOCAL INPATH '/home/<<LoginUserName>>/<<YourName>>/likes.txt'
+OVERWRITE INTO TABLE likes;
+
+
+
+CREATE EXTERNAL TABLE posts (user STRING, post STRING, time BIGINT)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE;
+
+LOAD DATA LOCAL INPATH '/home/<<LoginUserName>>/<<YourName>>/likes.txt'
+OVERWRITE INTO TABLE posts;
+
+
+
+CREATE TABLE posts_likes (user STRING, post STRING, likes_count INT);
+
+
+INSERT OVERWRITE TABLE posts_likes
+SELECT p.user, p.post, l.liker
+FROM posts p JOIN likes l ON (p.user = l.user);
+
+
+select * from posts_likes;
+
+
+Execute the above as a script
+hive -f hive_createjoin.hql
+
+
+9.
+
+To find if a table is external/internal
+---------------------------------------
+describe formatted posts_likes;
+describe formatted posts;
+
+For detailed information,
+
+describe extended posts_likes;
+describe extended posts;
+
+
+--------------
+Outer Join
+--------------
+
+10.
+
+SELECT p.*, l.*
+FROM posts p LEFT OUTER JOIN likes l ON (p.user = l.user);
+
+
+
+11.
+SELECT p.*, l.*
+FROM posts p RIGHT OUTER JOIN likes l ON (p.user = l.user);
+
+
+12.
+SELECT p.*, l.*
+FROM posts p FULL OUTER JOIN likes l ON (p.user = l.user);
+
+----------------
+LEFT SEMI JOIN
+----------------
+13.
+
+SELECT *
+FROM kposts p LEFT SEMI JOIN klikes l ON (p.user = l.user);
+
+14.
+----
+IN 
+----
+SELECT *
+FROM kposts
+WHERE kposts.user IN (SELECT user FROM klikes);
+
+15.
+---
+Exists
+---------
+Display Posts which got likes > 10
+----------------------------------
+SELECT p.user,p.post
+FROM kposts p
+WHERE EXISTS (SELECT l.user FROM klikes l WHERE p.user = l.user and l.liker > 10);
+
+
+
