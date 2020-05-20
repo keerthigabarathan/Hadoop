@@ -1,0 +1,73 @@
+SQOOP Job for Incremental append and last modified:
+----------------------------------------------------
+
+MYSQL: Data
+-------------
+create table city_date (sid int,rank int,mdate datetime);
+
+INSERT INTO city_date (sid,rank,mdate) VALUES (101,1, now());
+INSERT INTO city_date (sid,rank,mdate) VALUES (102,3, now());
+
+select * from city_date;
+
+
+SQOOP:
+------
+sqoop job --create keerthisamplejob -- import -m 1 --connect jdbc:mysql://localhost:3306/mysql --table city_date --username root --password hcluser --incremental lastmodified --check-column mdate --last-value '2018-08-16 00:08:56.0' --append --target-dir /user/focus2/keerthi/sqoopdata/city_date
+
+sqoop job --list
+sqoop job --show keerthisamplejob
+
+sqoop job --exec keerthisamplejob
+
+
+> hadoop fs -ls /user/focus2/keerthi/sqoopdata/city_date
+> hadoop fs -cat /user/focus2/keerthi/sqoopdata/city_date/part-m-00000
+
+
+MYSQL: Modification
+-------------------
+UPDATE city_date SET rank=5,mdate = now() WHERE sid=101;
+
+select * from city_date;
+
+SQOOP:
+------
+sqoop job --exec firstjob
+sqoop job --show firstjob
+
+
+> hadoop fs -ls  /user/focus2/keerthi/sqoopdata/city_date
+> hadoop fs -cat /user/focus2/keerthi/sqoopdata/city_date/part-m-00000
+> hadoop fs -cat /user/focus2/keerthi/sqoopdata/city_date/part-m-00001
+
+
+MYSQL: Append
+---------------
+INSERT INTO city_date (sid,rank,mdate) VALUES (103,9, now());
+select * from city_date;
+
+
+SQOOP:
+------
+sqoop job --exec firstjob
+sqoop job --show firstjob
+
+
+> hadoop fs -ls  /user/focus2/keerthi/sqoopdata/city_date
+> hadoop fs -cat /user/focus2/keerthi/sqoopdata/city_date/part-m-00000
+> hadoop fs -cat /user/focus2/keerthi/sqoopdata/city_date/part-m-00001
+> hadoop fs -cat /user/focus2/keerthi/sqoopdata/city_date/part-m-00002
+
+sqoop job --delete firstjob 
+
+
+
+hadoop fs -rmr /user/focus2/keerthi/sqoopdata/city_date
+drop table city_date;
+
+
+
+
+
+
