@@ -1,0 +1,46 @@
+Input file:
+-----------
+Employees.txt
+
+Exercise:
+---------
+1. Create table with complex data types
+hive> 
+ CREATE TABLE employees
+ ( 
+   name string, 
+   work_place ARRAY<string>, 
+   sex_age STRUCT<sex:string,age:int>, 
+   skills_score MAP<string,int>, 
+   depart_title MAP<string,ARRAY<string>> 
+ ) 
+ ROW FORMAT DELIMITED 
+ FIELDS TERMINATED BY '|' 
+ COLLECTION ITEMS TERMINATED BY ',' 
+ MAP KEYS TERMINATED BY ':';
+
+
+2. Load data into table
+hive> 
+LOAD DATA LOCAL INPATH '/home/cloudera/inputfiles/employee.txt' INTO TABLE employees;
+
+
+3. Select from array datatype
+hive> SELECT work_place[0] AS col_1, work_place[1] AS col_2, work_place[2] AS col_3 FROM employees;
+
+4. Select from structure datatype
+hive> SELECT work_place[0] AS col_1, work_place[1] AS col_2, work_place[2] AS col_3, sex_age.sex, sex_age.age FROM employees; 
+
+5.select from map datatype
+hive> SELECT work_place[0] AS col_1, work_place[1] AS col_2, work_place[2] AS col_3, sex_age.sex, sex_age.age, skills_score['Python'] as Python_score FROM employees; 
+
+Remove all null records of skills_score column
+hive> SELECT work_place[0] AS col_1, work_place[1] AS col_2, work_place[2] AS col_3, sex_age.sex, sex_age.age, skills_score['Python'] as Python_score FROM employees where skills_score['Python'] is not null; 
+
+6. Select from map datatype (array inside a map)
+hive> SELECT name, depart_title['Product'] AS Product, depart_title['Test'] AS Test, depart_title['COE'] AS COE, depart_title['Sales'] AS Sales FROM employees;
+
+
+hive> SELECT name, depart_title['Product'][0] AS Product, depart_title['Test'] AS Test, depart_title['COE'] AS COE, depart_title['Sales'] AS Sales FROM employees;
+
+
