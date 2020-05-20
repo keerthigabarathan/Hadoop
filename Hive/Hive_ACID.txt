@@ -1,0 +1,92 @@
+ACID in Hive:
+-------------
+DROP TABLE IF EXISTS hello_acid;
+
+CREATE TABLE hello_acid (key int, value int)
+PARTITIONED BY (load_date date)
+CLUSTERED BY(key) INTO 3 BUCKETS
+STORED AS ORC TBLPROPERTIES ('transactional'='true');
+
+INSERT INTO hello_acid partition (load_date='2016-03-01') VALUES (1, 1);
+INSERT INTO hello_acid partition (load_date='2016-03-02') VALUES (2, 2);
+INSERT INTO hello_acid partition (load_date='2016-03-03') VALUES (3, 3);
+
+SELECT * FROM hello_acid;
+
+DELETE FROM hello_acid WHERE key = 2;
+
+UPDATE hello_acid SET value = 10 WHERE key = 3;
+
+SELECT * FROM hello_acid;
+
+
+--------------------------
+DROP TABLE IF EXISTS mydim;
+
+CREATE TABLE mydim (key int, name string, zip string, is_current boolean)
+CLUSTERED BY (key) INTO 3 BUCKETS
+STORED AS ORC TBLPROPERTIES ('transactional'='true');
+
+INSERT INTO mydim VALUES
+  (1, 'bob',   '95136', true),
+  (2, 'joe',   '70068', true),
+  (3, 'steve', '22150', true);
+
+DROP TABLE IF EXISTS updates_staging_table;
+
+CREATE TABLE updates_staging_table (key int, newzip string);
+
+INSERT INTO updates_staging_table VALUES (1, 87102), (3, 45220);
+
+SELECT * FROM mydim;
+
+UPDATE mydim SET is_current = false
+   WHERE mydim.key IN (SELECT key FROM updates_staging_table);
+
+SELECT * FROM mydim;
+
+DELETE FROM mydim
+   WHERE mydim.key IN (SELECT key FROM updates_staging_table);
+
+SELECT * FROM mydim;
+
+show transactions;
+show locks;
+
+Merge:
+-----
+create table customer_partitioned
+(id int, name string, email string, state string)
+partitioned by (signup date)
+clustered by (id) into 2 buckets stored as orc
+tblproperties("transactional"="true");
+
+merge into customer_partitioned
+using all_updates on customer_partitioned.id = all_updates.id
+when matched then update set
+email=all_updates.email,
+state=all_updates.state
+when not matched then insert
+values(all_updates.id, all_updates.name, all_updates.email,
+all_updates.state, all_updates.signup);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
