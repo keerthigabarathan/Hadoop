@@ -1,0 +1,101 @@
+--------------------------------------------------------------------------------------------------------------------------------------------------
+Map Side Joins:
+----------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TABLE emp (id INT, emp_name VARCHAR(20), depid INT,
+salary DECIMAL(7, 2), age DECIMAL(3, 0));
+
+INSERT INTO emp VALUES
+( 1,  'Matthew', 1,  4500, 55),
+( 2,  'Olivia',  1,  4400, 61),
+( 3,  'Grace',   1,  4000, 42),
+( 4,  'Jim',     2,  3700, 35),
+( 5,  'Alice',   2,  3500, 24),
+( 6,  'Michael', 2,  3600, 28),
+( 7,  'Tom',     2,  3800, 35),
+( 8,  'Kevin',  2,  4000, 52),
+( 9,  'Elvis',  3,     4100, 40),
+(10,  'Sophia',  4,       4300, 36),
+(11,  'Samantha',4,       4100, 38);
+
+CREATE TABLE dept (depid INT, dep_name VARCHAR(20));
+
+INSERT INTO dept VALUES
+(1,'Management'),
+(2,'Production'),
+(3,'Service'),
+(4,'Sales');
+
+-------------
+Normal Join:
+-------------
+set hive.auto.convert.join;
+set hive.auto.convert.join=false;
+
+We do not want automatic map join as we are going to understand the difference of normal and map side joins.
+
+SELECT emp.emp_name,emp.salary,dept.dep_name 
+FROM emp JOIN dept ON emp.depid = dept.depid;
+
+---------------
+Map Side Join:
+--------------
+
+set hive.mapjoin.smalltable.filesize;
+set hive.auto.convert.join=true;
+
+SELECT /*+ MAPJOIN(dept) */ emp.emp_name,emp.salary,dept.dep_name 
+FROM emp JOIN dept ON emp.depid = dept.depid;
+
+---------------------------------
+Bucket Tables for Bucket Map Join
+--------------------------------
+
+CREATE TABLE IF NOT EXISTS emp_bucketed (id INT, emp_name VARCHAR(20), depid INT,
+salary DECIMAL(7, 2), age DECIMAL(3, 0)) 
+clustered by(depid) INTO 4 buckets;
+
+INSERT INTO emp_bucketed select * FROM emp;
+
+
+CREATE TABLE IF NOT EXISTS dept_bucketed (depid INT, dep_name VARCHAR(20)) 
+clustered by(depid) into 8 buckets;
+
+INSERT INTO  dept_bucketed select * FROM dept;
+
+
+
+set hive.optimize.bucketmapjoin;
+set hive.optimize.bucketmapjoin = true;
+
+SELECT /*+ MAPJOIN(dept_bucketed) */ emp_bucketed.emp_name,emp_bucketed.salary, dept_bucketed.dep_name 
+FROM emp_bucketed 
+JOIN dept_bucketed ON emp_bucketed.depid = dept_bucketed.depid ;
+
+
+-----------------------------------------
+Bucket Tables for Sort Merge Bucket Join 
+-----------------------------------------
+To perform SMB-Map join, we need to have the same number of buckets in both the tables with the bucketed column sorted.
+
+INSERT OVERWRITE table emp_bucketed SELECT * FROM emp SORT BY depid;
+
+
+CREATE TABLE IF NOT EXISTS dept_buck (depid INT, dep_name VARCHAR(20)) 
+clustered by(depid) into 4 buckets;
+
+
+INSERT INTO dept_buck SELECT * from dept SORT BY depid;
+
+
+set hive.input.format=org.apache.hadoop.hive.ql.io.BucketizedHiveInputFormat;
+set hive.optimize.bucketmapjoin = true;
+set hive.optimize.bucketmapjoin.sortedmerge = true;
+
+
+SELECT /*+ MAPJOIN(dept_buck) */ emp_bucketed.emp_name,emp_bucketed.salary, dept_buck.dep_name 
+FROM emp_bucketed 
+JOIN dept_buck ON emp_bucketed.depid = dept_buck.depid ;
+
+As the dataset sizes are too small, this analysis results may vary based on the dataset size.
+
+
