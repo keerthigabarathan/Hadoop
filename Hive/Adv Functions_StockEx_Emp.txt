@@ -38,7 +38,7 @@ Window Functions:
 Lag:
 -------
 This function returns the values of the previous row. You can specify an integer offset which designates the row position else it will take the default integer offset as 1.
-Here using lag we can display the yesterday’s closing price of the ticker. Lag is to be used with over function, inside the over function you can use partition or order by classes.
+Here using lag we can display the yesterdayâ€™s closing price of the ticker. Lag is to be used with over function, inside the over function you can use partition or order by classes.
 
 
 > select ticker,stockdate,close_value,lag(close_value,1) over(partition by ticker order by ticker) as yesterday_price from default.stocks where ticker = 'CLI';
@@ -46,7 +46,7 @@ Here using lag we can display the yesterday’s closing price of the ticker. Lag i
 Lead:
 --------
 This function returns the values from the following rows. You can specify an integer offset which designates the row position else it will take the default integer offset as 1.
-Now using the lead function, we will find that whether the following day’s closing price is higher or lesser than today’s.
+Now using the lead function, we will find that whether the following dayâ€™s closing price is higher or lesser than todayâ€™s.
 
 > select ticker,stockdate,close_value,case(lead(close_value,1) over(partition by ticker order by ticker)-close_value)>0 when true then "higher" when false then "lesser" end as Changes from default.stocks where ticker = 'CLI';
 
@@ -127,7 +127,7 @@ It returns the cumulative distribution of a value. It results from 0 to 1. For s
 
 Percent_rank:
 --------------
-It returns the percentage rank of each row within the result set of over clause. Percent_rank is calculated in accordance with the rank of the row and the calculation is as follows (rank-1)/(total_rows_in_group – 1). If the result set has only one row then the percent_rank will be 0
+It returns the percentage rank of each row within the result set of over clause. Percent_rank is calculated in accordance with the rank of the row and the calculation is as follows (rank-1)/(total_rows_in_group â€“ 1). If the result set has only one row then the percent_rank will be 0
 
 > select ticker,close_value,percent_rank() over(partition by ticker order by close_value) as closing from stocks
 
@@ -169,7 +169,7 @@ We can use the RANK() function to find out who earns the most within each depart
 
 Cumulative Distribution:
 -------------------------
-We can calculate the cumulative distribution of salaries among all departments. For example, salary 4000‘s cumulative distribution is 0.55, which means 55% people’s salaries are less or equal to 4000. To calculate this, we first count the frequencies of every salary, and do a cumulative summing:
+We can calculate the cumulative distribution of salaries among all departments. For example, salary 4000â€˜s cumulative distribution is 0.55, which means 55% peopleâ€™s salaries are less or equal to 4000. To calculate this, we first count the frequencies of every salary, and do a cumulative summing:
 
 
 SELECT
@@ -183,7 +183,7 @@ FROM (
   GROUP BY salary
 ) a;
 
-This can also be done with Hive’s CUME_DIST() window function. There’s another PERCENT_RANK() function, which computes the rank of the salary as percentage.
+This can also be done with Hiveâ€™s CUME_DIST() window function. Thereâ€™s another PERCENT_RANK() function, which computes the rank of the salary as percentage.
 
 
 SELECT
@@ -214,37 +214,10 @@ SELECT p.id,p.productname,colors.colorselection FROM products P LATERAL VIEW EXP
 
 select explode(ProductColorOptions) as colors from products;
 
---------------------------------------------------------------------------------------------------------------------------------------------------
-Map Join:
-----------------------------------------------------------------------------------------------------------------------------------------------------
-CREATE TABLE emp (id INT, emp_name VARCHAR(20), depid INT,
-salary DECIMAL(7, 2), age DECIMAL(3, 0));
-
-INSERT INTO emp VALUES
-( 1,  'Matthew', 1,  4500, 55),
-( 2,  'Olivia',  1,  4400, 61),
-( 3,  'Grace',   1,  4000, 42),
-( 4,  'Jim',     2,  3700, 35),
-( 5,  'Alice',   2,  3500, 24),
-( 6,  'Michael', 2,  3600, 28),
-( 7,  'Tom',     2,  3800, 35),
-( 8,  'Kevin',  2,  4000, 52),
-( 9,  'Elvis',  3,     4100, 40),
-(10,  'Sophia',  4,       4300, 36),
-(11,  'Samantha',4,       4100, 38);
-
-CREATE TABLE dept (depid INT, dep_name VARCHAR(20));
-
-INSERT INTO dept VALUES
-(1,'Management'),
-(2,'Production'),
-(3,'Service'),
-(4,'Sales');
-
-SELECT /*+ MAPJOIN(dept) */ emp.emp_name,emp.salary,dept.dep_name 
-FROM emp JOIN dept ON emp.depid = dept.depid;
-
-
-
-
-
+-----------------------------------------------------------------------------------------------------------------------------------------------
+In-Line Function
+-----------------------------------------------------------------------------------------------------------------------------------------------
+SELECT lv.* 
+FROM   (SELECT 0) t 
+lateral VIEW inline(array(struct('A',10,'Fred'),struct('B',20, 'Ann'),struct('B',300, 'Paul') )) lv 
+AS col1, col2, col3;
