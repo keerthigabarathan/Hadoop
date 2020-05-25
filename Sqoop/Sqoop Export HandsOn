@@ -1,0 +1,34 @@
+Sqoop Export:
+-----------
+
+Create Table in MySQL:
+----------------------
+Login to MySQL:
+mysql -u root -p
+Enter password
+
+use mysql;
+
+create table AirportExport (code varchar(10), name varchar(100), city varchar(100),state varchar(10),country varchar(50),latitude double,longitude double);
+
+Describe AirportExport;
+
+quit;
+
+
+Export Table from HDFS to MySQL:
+----------------------------------
+sqoop export -m 1 --connect jdbc:mysql://localhost:3306/mysql --table AirportExport --username root --password hcluser --export-dir /user/<<LoginUserName>>/<<YourName>>/Airports --input-fields-terminated-by ','
+
+sqoop export -m 1 --connect jdbc:mysql://localhost:3306/mysql --table AirportExport --username root --password hcluser --export-dir /user/focus2/keerthi/Airports --input-fields-terminated-by ','
+
+
+Check in MySQL:
+-----------------
+Login to MySQL
+
+use mysql;
+
+select * from AirportExport;
+
+
