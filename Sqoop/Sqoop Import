@@ -1,0 +1,17 @@
+
+Sqoop Import to HBase:
+------------------------
+
+sqoop import -m 1 --connect jdbc:mysql://localhost:3306/mysql --table AIRPORTS --username root --password hcluser --hive-import --hive-table keerthiairports
+--hbase-create-table airsqoop --column-family airdetails
+
+
+Login HBase and Check:
+-----------------------
+hbase shell
+
+list
+
+describe 'airsqoop'
+
+scan 'airsqoop'
