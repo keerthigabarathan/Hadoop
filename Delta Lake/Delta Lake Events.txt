@@ -1,0 +1,88 @@
+import org.apache.spark.sql._
+import org.apache.spark.sql.functions._
+
+val events = spark.read 
+  .option("inferSchema", "true") 
+  .json("/databricks-datasets/structured-streaming/events/") 
+  .withColumn("date", expr("time"))
+  .drop("time")
+  .withColumn("date", from_unixtime($"date", "yyyy-MM-dd"))
+  
+display(events)
+
+
+// Write out DataFrame as Databricks Delta data
+import org.apache.spark.sql.SaveMode
+
+events.write.format("delta").mode("overwrite").partitionBy("date").save("/delta/events/")
+
+// Query the data file path
+val events_delta = spark.read.format("delta").load("/delta/events/")
+display(events_delta)
+
+
+// Create table
+display(spark.sql("DROP TABLE IF EXISTS events"))
+        
+display(spark.sql("CREATE TABLE events USING DELTA LOCATION '/delta/events/'"))
+
+// Query the table
+events_delta.count()
+
+// Visualize data
+import org.apache.spark.sql._
+import org.apache.spark.sql.functions._
+
+display(events_delta.groupBy("action","date").agg(count("action").alias("action_count")).orderBy("date", "action"))
+
+
+// Generate historical data - original data shifted backwards 2 days
+val historical_events = spark.read 
+  .option("inferSchema", "true") 
+  .json("/databricks-datasets/structured-streaming/events/") 
+  .withColumn("date", expr("time-172800")) 
+  .drop("time") 
+  .withColumn("date", from_unixtime($"date","yyyy-MM-dd"))
+
+// Append historical data
+historical_events.write.format("delta").mode("append").partitionBy("date").save("/delta/events/")
+
+// Count rows
+events_delta.count()
+
+// Visualize data
+display(events_delta.groupBy("action","date").agg(count("action").alias("action_count")).orderBy("date", "action"))
+
+// Show the contents of a partition
+dbutils.fs.ls("dbfs:/delta/events/date=2016-07-25/")
+
+// Show table history
+display(spark.sql("DESCRIBE HISTORY events"))
+
+display(spark.sql("DESCRIBE DETAIL events"))
+
+display(spark.sql("DESCRIBE FORMATTED events"))
+
+import io.delta.tables._
+val deltaTable = DeltaTable.forPath(spark, "/delta/events/")
+
+val fullHistoryDF = deltaTable.history()    // get the full history of the table
+fullHistoryDF.show()
+
+val lastOperationDF = deltaTable.history(1) // get the last operation
+lastOperationDF.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
