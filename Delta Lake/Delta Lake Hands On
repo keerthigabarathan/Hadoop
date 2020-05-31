@@ -1,0 +1,63 @@
+// To create a Delta table, write a DataFrame out in the delta format
+val data = spark.range(0, 5)
+data.write.format("delta").save("/tmp/delta-table")
+
+//Read data in your Delta table by specifying the path to the files
+val df = spark.read.format("delta").load("/tmp/delta-table")
+df.show()
+
+// Delta Lake supports several operations to modify tables using standard DataFrame APIs. This example runs a batch job to overwrite the data in the table:
+
+val data = spark.range(5, 10)
+data.write.format("delta").mode("overwrite").save("/tmp/delta-table")
+df.show()
+
+// Delta Lake provides programmatic APIs to conditional update, delete, and merge (upsert) data into tables.
+
+import io.delta.tables._
+import org.apache.spark.sql.functions._
+
+val deltaTable = DeltaTable.forPath("/tmp/delta-table")
+
+// Update every even value by adding 100 to it
+deltaTable.update(
+  condition = expr("id % 2 == 0"),
+  set = Map("id" -> expr("id + 100")))
+
+// Delete every even value
+deltaTable.delete(condition = expr("id % 2 == 0"))
+
+// Upsert (merge) new data
+val newData = spark.range(0, 20).toDF
+
+deltaTable.as("oldData")
+  .merge(
+    newData.as("newData"),
+    "oldData.id = newData.id")
+  .whenMatched
+  .update(Map("id" -> col("newData.id")))
+  .whenNotMatched
+  .insert(Map("id" -> col("newData.id")))
+  .execute()
+
+deltaTable.toDF.show()
+
+//Read older versions of data using time travel
+//  If you want to access the data that you overwrote, you can query a snapshot of the table before you overwrote the first set of data using the versionAsOf option.
+
+val df = spark.read.format("delta").option("versionAsOf", 0).load("/tmp/delta-table")
+df.show()
+
+/* You should see the first set of data, from before you overwrote it. Time travel is an extremely powerful feature that takes advantage of the power of the Delta Lake transaction log to access data that is no longer in the table. Removing the version 0 option (or specifying version 1) would let you see the newer data again. */
+
+
+Example 2:
+----------
+val df = Seq( (1, "IL", "USA"),(2, "IL", "USA"),(3, "MO", "USA"),(4, "IL", "USA"),(5, "KA", "INDIA"),(6, "MEL", "AUS")
+).toDF("id", "state", "country")
+
+df.write.format("delta").mode("overwrite").option("overwriteSchema", "true").save("/tmp/delta/myDeltaTable")
+
+val df1 = spark.read.format("delta").load("/tmp/delta/myDeltaTable")
+df1.show()
+
