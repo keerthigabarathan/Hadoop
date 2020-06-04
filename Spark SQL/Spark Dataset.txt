@@ -1,0 +1,92 @@
+// Type Safety - Dataframe
+import org.apache.spark.sql.SparkSession
+val spark = SparkSession.builder().appName("SparkExample").getOrCreate()
+import spark.implicits._
+
+case class Person(name : String , age : Int)
+val personRDD = List(Person("Paul",10),Person("Anna",23))
+val persondf = personRDD.toDF
+persondf.filter("age > 21").show() 
+persondf.filter("gender > 15").show()
+
+val personds = personRDD.toDS()
+personds.show()
+
+// Type Safety - Dataset
+case class Person(name : String , age : Int)
+val personRDD = List(Person("Paul",10),Person("Anna",23))
+
+val personds = personRDD.toDS()
+personds.filter("age > 21").show() 
+personds.filter(_.age > 21).show() 
+personds.filter(_.salary > 21).show() 
+
+
+// Create a Dataset - On Sequence
+val dataset = Seq(1, 2, 3).toDS()
+dataset.show()
+
+
+// Create a Dataset - On Case Class
+case class Person(name: String, age: Int)
+
+val personDS = Seq(Person("Max", 33), Person("Adam", 32), Person("Muller", 62)).toDS()
+
+// Create a Dataset from an RDD
+val rdd = sc.parallelize(Seq((1, "Spark"), (2, "Data")))
+val integerDS = rdd.toDS()
+integerDS.show()
+
+
+// Create a Dataset from a DataFrame
+case class Company(name: String, foundingYear: Int, numEmployees: Int)
+val inputSeq = Seq(Company("ABC", 1998, 310), Company("XYZ", 1983, 904), Company("NOP", 2005, 83))
+val df = sc.parallelize(inputSeq).toDF()
+
+val companyDS = df.as[Company]
+companyDS.show()
+
+
+// Word Count Example
+val wordsDataset = sc.parallelize(Seq("Spark I am your father", "May the spark be with you", "Spark I am your father")).toDS()
+val groupedDataset = wordsDataset.flatMap(_.toLowerCase.split(" "))
+                                 .filter(_ != "")
+                                 .groupBy("value")
+val countsDataset = groupedDataset.count()
+countsDataset.show()
+
+// Join
+
+case class Employee(name: String, age: Int, departmentId: Int, salary: Double)
+case class Department(id: Int, name: String)
+
+case class Record(name: String, age: Int, salary: Double, departmentId: Int, departmentName: String)
+case class ResultSet(departmentId: Int, departmentName: String, avgSalary: Double)
+
+val employeeDataSet1 = sc.parallelize(Seq(Employee("Max", 22, 1, 100000.0), Employee("Adam", 33, 2, 93000.0), Employee("Eve", 35, 2, 89999.0), Employee("Muller", 39, 3, 120000.0))).toDS()
+val employeeDataSet2 = sc.parallelize(Seq(Employee("John", 26, 1, 990000.0), Employee("Joe", 38, 3, 115000.0))).toDS()
+val departmentDataSet = sc.parallelize(Seq(Department(1, "Engineering"), Department(2, "Marketing"), Department(3, "Sales"))).toDS()
+
+val employeeDataset = employeeDataSet1.union(employeeDataSet2)
+
+val averageSalaryDataset = employeeDataset.joinWith(departmentDataSet, $"departmentId" === $"id", "inner")
+                                          .map(record => Record(record._1.name, record._1.age, record._1.salary, record._1.departmentId, record._2.name))
+                                          .filter(record => record.age > 25)
+                                          .groupBy($"departmentId", $"departmentName")
+                                          .avg()
+
+averageSalaryDataset.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
